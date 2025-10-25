@@ -386,6 +386,7 @@ namespace Leauge_Auto_Accept
 
         private static void handleInput(char key)
         {
+            if (UI.currentWindow == "champSelector" || UI.currentWindow == "spellSelector" || UI.currentWindow == "runeSelector")
             if (UI.currentWindow == "champSelector" || UI.currentWindow == "spellSelector"|| UI.currentWindow == "runeSelector")
             {
                 if (currentInput.Length < 100)
@@ -393,6 +394,9 @@ namespace Leauge_Auto_Accept
                     currentInput += key;
                     UI.updateCurrentFilter();
                 }
+                return;
+            }
+
             }
             if (UI.currentWindow == "chatMessagesEdit")
             {
@@ -401,6 +405,13 @@ namespace Leauge_Auto_Accept
                     currentInput += key;
                     UI.updateMessageEdit();
                 }
+                return;
+            }
+
+            if (UI.currentWindow == "delayMenu" && Functions.IsNumeric(key))
+            {
+                Settings.delayModify(currentPos, Int32.Parse(key.ToString()));
+                UI.delayMenuUpdateUI(currentPos);
             }
             else if (UI.currentWindow == "delayMenu")
             {
