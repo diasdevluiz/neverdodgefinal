@@ -61,6 +61,7 @@ namespace Leauge_Auto_Accept
             showCursor = false;
 
             Print.printCentered(Localization.Localize("Initializing..."), SizeHandler.HeightCenter);
+            Print.printCentered("Initializing...", SizeHandler.HeightCenter);
         }
 
         public static void leagueClientIsClosedMessage()
@@ -73,6 +74,7 @@ namespace Leauge_Auto_Accept
             Console.Clear();
 
             Print.printCentered(Localization.Localize("League client cannot be found."), SizeHandler.HeightCenter);
+            Print.printCentered("League client cannot be found.", SizeHandler.HeightCenter);
         }
 
         public static void consoleTooSmallMessage(string direction)
@@ -98,6 +100,13 @@ namespace Leauge_Auto_Accept
             {
                 Print.printCentered(Localization.Localize("Console height is too small. Please resize it."), SizeHandler.HeightCenter);
                 Print.printCentered(Localization.Format("Minimum height: {0} | Current height: {1}", SizeHandler.minHeight, SizeHandler.WindowHeight));
+                Print.printCentered("Console width is too small. Please resize it.", SizeHandler.HeightCenter);
+                Print.printCentered("Minimum width:" + SizeHandler.minWidth + " | Current width:" + SizeHandler.WindowWidth);
+            }
+            else
+            {
+                Print.printCentered("Console height is too small. Please resize it.", SizeHandler.HeightCenter);
+                Print.printCentered("Minimum height:" + SizeHandler.minHeight + " | Current height:" + SizeHandler.WindowHeight);
             }
         }
 
@@ -156,6 +165,7 @@ namespace Leauge_Auto_Accept
             windowType = "normal";
             showCursor = false;
             topPad = SizeHandler.HeightCenter - 6;
+            topPad = SizeHandler.HeightCenter - 5;
             leftPad = SizeHandler.WidthCenter - 25;
 
             Console.Clear();
@@ -192,12 +202,41 @@ namespace Leauge_Auto_Accept
             numOptions = optionName.Length;
             maxPos = numOptions + 1;
 
+                "Select primary champion",
+                " Rune page",
+                "Primary backup champion",
+                " Rune page",
+                "Select a ban",
+                "Select summoner spell 1",
+                "Select summoner spell 2",
+                "Instant chat messages",
+                "Enable auto accept"
+            };
+            string[] optionValue = {
+                Settings.currentChamp[0],
+                Settings.currentChampRunes[0],
+                Settings.currentBackupChamp[0],
+                Settings.currentBackupChampRunes[0],
+                Settings.currentBan[0],
+                Settings.currentSpell1[0],
+                Settings.currentSpell2[0],
+                Settings.chatMessagesEnabled ? "Enabled, " + Settings.chatMessages.Count : "Disabled",
+                MainLogic.isAutoAcceptOn ? "Enabled" : "Disabled"
+            };
+
+            numOptions = optionName.Length;
+            maxPos = numOptions + 2; //Settings + Arena
+
+            // Print options
             for (int i = 0; i < optionName.Length; i++)
             {
                 Print.printCentered(addDotsInBetween(optionName[i], optionValue[i]), topPad + i);
             }
 
             Print.printWhenPossible("  " + Localization.Localize("Settings"), SizeHandler.HeightCenter + numOptions, leftPad + 1);
+            // Print the two bottom buttons that are not actual settings
+            Print.printWhenPossible("  Settings", SizeHandler.HeightCenter + numOptions, leftPad + 1);
+            Print.printWhenPossible("  Arena", SizeHandler.HeightCenter + numOptions, leftPad + 20);
 
             Navigation.handlePointerMovementPrint();
 
@@ -214,6 +253,106 @@ namespace Leauge_Auto_Accept
         {
             string optionText = addDotsInBetween(Localization.Localize("Enable bravery"), Localization.LocalizeBoolean(Settings.bravery));
             Print.printCentered(optionText, topPad + pos);
+            Print.printWhenPossible(MainLogic.isAutoAcceptOn ? ". Enabled" : " Disabled", topPad + pos, leftPad + 38);
+        }
+
+        public static void arenaMenu()
+        {
+            Print.canMovePos = false;
+            Navigation.currentPos = 0;
+            Navigation.consolePosLast = 0;
+
+            currentWindow = "arenaMenu";
+            windowType = "normal";
+            showCursor = false;
+            topPad = SizeHandler.HeightCenter - 4;
+            leftPad = SizeHandler.WidthCenter - 25;
+            maxPos = 7;
+
+            Console.Clear();
+            
+            string[] optionName = {
+                "Enable Bravery",
+                "Ban crowd favourite champion",
+                "Crowd favourite 1st",
+                "Crowd favourite 2nd",
+                "Crowd favourite 3rd",
+                "Crowd favourite 4th",
+                "Crowd favourite 5th",
+            };
+            
+            string[] optionValue = {
+                Settings.bravery ? "Yes" : "No",
+                Settings.banCrowdFavourite ? "Yes" : "No",
+                Settings.crowdFavouraiteChamp1[0],
+                Settings.crowdFavouraiteChamp2[0],
+                Settings.crowdFavouraiteChamp3[0],
+                Settings.crowdFavouraiteChamp4[0],
+                Settings.crowdFavouraiteChamp5[0],
+            };
+            
+            // Print options
+            for (int i = 0; i < optionName.Length; i++)
+            {
+                Print.printCentered(addDotsInBetween(optionName[i], optionValue[i]), topPad + i);
+            }
+            
+            Navigation.handlePointerMovementPrint();
+            Print.canMovePos = true;
+            arenaMenuDesc(0);
+        }
+        
+        public static void arenaMenuDesc(int item)
+        {
+            switch (item)
+            {
+                case 0:
+                    Print.printCentered("Enable or disable bravery for arena games.", topPad + maxPos + 2);
+                    Print.printCentered("This will pick bravery in arena games over your selected champion", topPad + maxPos + 3);
+                    break;
+                case 1:
+                    Print.printCentered("Enable or disable banning one of the selected crowd favourite champion", topPad + maxPos + 2);
+                    Print.printCentered("If true and the ban matches one of the crowd favourite champions, It will ban None.", topPad + maxPos + 3);
+                    break;
+                case 2:
+                    Print.printCentered("Select the first crowd favourite champion to be picked in arena", topPad + maxPos + 2);
+                    Print.printCentered("This will be picked over bravery.", topPad + maxPos + 3);
+                    break;
+                case 3:
+                    Print.printCentered("Select the second crowd favourite champion to be picked in arena", topPad + maxPos + 2);
+                    Print.printCentered("This will be picked over bravery.", topPad + maxPos + 3);
+                    break;
+                case 4:
+                    Print.printCentered("Select the third crowd favourite champion to be picked in arena", topPad + maxPos + 2);
+                    Print.printCentered("This will be picked over bravery.", topPad + maxPos + 3);
+                    break;
+                case 5:
+                    Print.printCentered("Select the fourth crowd favourite champion to be picked in arena", topPad + maxPos + 2);
+                    Print.printCentered("This will be picked over bravery.", topPad + maxPos + 3);
+                    break;
+                case 6:
+                    Print.printCentered("Select the fifth crowd favourite champion to be picked in arena", topPad + maxPos + 2);
+                    Print.printCentered("This will be picked over bravery.", topPad + maxPos + 3);
+                    break;
+            }
+        }
+        
+        public static void arenaMenuUpdateUI(int item)
+        {
+            // Select item to toggle from settings
+
+            string outputText = item switch
+            {
+                0 => Settings.bravery ? " Yes" : ". No",
+                1 => Settings.banCrowdFavourite ? "Yes" : ". No",
+                2 => Settings.crowdFavouraiteChamp1[0],
+                3 => Settings.crowdFavouraiteChamp2[0],
+                4 => Settings.crowdFavouraiteChamp3[0],
+                5 => Settings.crowdFavouraiteChamp4[0],
+                6 => Settings.crowdFavouraiteChamp5[0],
+                _ => throw new NotImplementedException(), //added to suppress CS8509
+            };
+            Print.printWhenPossible(outputText, item + topPad, SizeHandler.WidthCenter + 22 - outputText.Length);
         }
 
         public static void settingsMenu()
@@ -227,6 +366,7 @@ namespace Leauge_Auto_Accept
             showCursor = false;
             topPad = SizeHandler.HeightCenter - 4;
             leftPad = SizeHandler.WidthCenter - 25;
+            maxPos = 8;
 
             Console.Clear();
 
@@ -259,6 +399,27 @@ namespace Leauge_Auto_Accept
 
             numOptions = optionName.Length;
             maxPos = numOptions;
+
+                "Preload data",
+                "Instalock pick",
+                "Instalock ban",
+                "Automatically trade pick order",
+                "Instantly hover pick",
+                "Automatically restart queue",
+                "Cancel queue after dodge",
+                "Delay settings"
+            };
+
+            string[] optionValue = {
+                Settings.preloadData ? "Yes" : "No",
+                Settings.instaLock ? "Yes" : "No",
+                Settings.instaBan ? "Yes" : "No",
+                Settings.autoPickOrderTrade ? "Yes" : "No",
+                Settings.instantHover ? "Yes" : "No",
+                Settings.autoRestartQueue ? "Yes" : "No",
+                Settings.cancelQueueAfterDodge ? "Yes" : "No",
+                ""
+            };
 
             // Print options
             for (int i = 0; i < optionName.Length; i++)
@@ -313,6 +474,36 @@ namespace Leauge_Auto_Accept
                     break;
                 case 9:
                     Print.printCentered(Localization.Localize("Adjust different delays."), topPad + maxPos + 2);
+                    Print.printCentered("Preload all data the app will need on launch.", topPad + maxPos + 2);
+                    Print.printCentered("This includes champions list, summoner spells list and more.");
+                    break;
+                case 1:
+                    Print.printCentered("Instanly lock in when it's your turn to pick.", topPad + maxPos + 2);
+                    Print.printCentered("This will bypass the lock in delay setting.");
+                    break;
+                case 2:
+                    Print.printCentered("Instanly lock in when it's your turn to ban.", topPad + maxPos + 2);
+                    Print.printCentered("This will bypass the lock in delay setting.");
+                    break;
+                case 3:
+                    Print.printCentered("Automatically trade pick order when someone requests to.", topPad + maxPos + 2);
+                    Print.printCentered("");
+                    break;
+                case 4:
+                    Print.printCentered("Instantly hover champion as soon as joining champ select.", topPad + maxPos + 2);
+                    Print.printCentered("In draft pick, it will hover before you are normally able to.");
+                    break;
+                case 5:
+                    Print.printCentered("Automatically restart queue every few minutes.", topPad + maxPos + 2);
+                    Print.printCentered("Default is 5 mintues, can be configured in the delays settings.");
+                    break;
+                case 6:
+                    Print.printCentered("Automatically cancel the queue after someone dodges the lobby.", topPad + maxPos + 2);
+                    Print.printCentered("");
+                    break;
+                case 7:
+                    Print.printCentered("Adjust different delays.", topPad + maxPos + 2);
+                    Print.printCentered("");
                     break;
             }
         }
@@ -350,6 +541,20 @@ namespace Leauge_Auto_Accept
             };
 
             Print.printCentered(addDotsInBetween(optionName, value), topPad + item);
+            // Select item to toggle from settings
+
+            string outputText = item switch
+            {
+                0 => Settings.preloadData ? " Yes" : ". No",
+                1 => Settings.instaLock ? " Yes" : ". No",
+                2 => Settings.instaBan ? " Yes" : ". No",
+                3 => Settings.autoPickOrderTrade ? " Yes" : ". No",
+                4 => Settings.instantHover ? " Yes" : ". No",
+                5 => Settings.autoRestartQueue ? " Yes" : ". No",
+                6 => Settings.cancelQueueAfterDodge ? " Yes" : ". No",
+                _ => ""
+            };
+            Print.printWhenPossible(outputText, item + topPad, SizeHandler.WidthCenter + 22 - outputText.Length);
         }
 
 
@@ -379,6 +584,14 @@ namespace Leauge_Auto_Accept
                 Localization.Localize("Ban lock delay before phase end"),
                 Localization.Localize("Max queue time before restart"),
                 Localization.Localize("Chat Messages Delay")
+                "Pick hover delay upon phase start",
+                "Pick lock delay upon phase start",
+                "Pick lock delay before phase end",
+                "Ban hover delay upon phase start",
+                "Ban lock delay upon phase start",
+                "Ban lock delay before phase end",
+                "Max queue time before restart",
+                "Chat Messages Delay"
             };
             string[] optionValue = {
                 formatDelayValue(Settings.pickStartHoverDelay),
@@ -446,6 +659,36 @@ namespace Leauge_Auto_Accept
                 case 7:
                     Print.printCentered(Localization.Localize("Delay after which the chat messages will be sent"), topPad + maxPos + 2);
                     Print.printCentered(Localization.Localize("Default is 0 seconds."));
+                    Print.printCentered("Delay after which to hover your pick.", topPad + maxPos + 2);
+                    Print.printCentered("Default is 10 seconds.");
+                    break;
+                case 1:
+                    Print.printCentered("Delay after which to lock in your pick, after you are able to.", topPad + maxPos + 2);
+                    Print.printCentered("Default is 1000000 seconds.");
+                    break;
+                case 2:
+                    Print.printCentered("Time to lock in before your time runs out.", topPad + maxPos + 2);
+                    Print.printCentered("Do not set too low (less than 1 second), it will cause you to dodge. Default is 1 second.");
+                    break;
+                case 3:
+                    Print.printCentered("Delay after which to hover your ban.", topPad + maxPos + 2);
+                    Print.printCentered("Default is 2 seconds.");
+                    break;
+                case 4:
+                    Print.printCentered("Delay after which to lock in your pick, after you are able to.", topPad + maxPos + 2);
+                    Print.printCentered("Default is 1000000 seconds.");
+                    break;
+                case 5:
+                    Print.printCentered("Time to lock in before your time runs out", topPad + maxPos + 2);
+                    Print.printCentered("Default is 1 second.");
+                    break;
+                case 6:
+                    Print.printCentered("How long should the queue be before cancelling and restarting it?", topPad + maxPos + 2);
+                    Print.printCentered("Default is 300 seconds.");
+                    break;
+                case 7:
+                    Print.printCentered("Delay after which the chat messages will be sent", topPad + maxPos + 2);
+                    Print.printCentered("Default is 0 seconds.");
                     break;
             }
         }
@@ -489,6 +732,9 @@ namespace Leauge_Auto_Accept
             string yesOption = Localization.Localize("Yes") + " ";
             Print.printWhenPossible(noOption, topPad, leftPad + 3, false);
             Print.printWhenPossible(yesOption, topPad, leftPad + 3, false);
+            Print.printCentered("Are you sure you want to close this app?", topPad - 2);
+            Print.printWhenPossible((" No").PadLeft(32, ' '), topPad, leftPad + 3, false);
+            Print.printWhenPossible("Yes ", topPad, leftPad + 3, false);
 
             Navigation.handlePointerMovementPrint();
 
@@ -532,6 +778,7 @@ namespace Leauge_Auto_Accept
                 champsFiltered.Add(new itemList() { name = "Unselected", id = "0" });
             }
             if (currentChampPicker == 4 || currentChampPicker == 10)
+            if (currentChampPicker == 4)
             {
                 if ("none".Contains(Navigation.currentInput.ToLower()))
                 {
@@ -544,6 +791,7 @@ namespace Leauge_Auto_Accept
                 {
                     // Make sure the champ is free or if it's for a ban before adding it to the list
                      if (champ.free || (currentChampPicker == 4 || currentChampPicker == 10) && int.Parse(champ.id) < 10000)
+                     if (champ.free || currentChampPicker == 4 && int.Parse(champ.id) < 10000)
                     {
                         champsFiltered.Add(new itemList() { name = champ.name, id = champ.id });
                     }
@@ -559,6 +807,7 @@ namespace Leauge_Auto_Accept
             foreach (var champ in champsFiltered)
             {
                 string line = "   " + LocalizeSelectionValue(champ.name);
+                string line = "   " + champ.name;
                 line = line.PadRight(columnSize, ' ');
 
                 champsOutput[currentRow] += line;
@@ -642,6 +891,7 @@ namespace Leauge_Auto_Accept
             foreach (var rune in runesFiltered)
             {
                 string line = "   " + LocalizeSelectionValue(rune.name);
+                string line = "   " + rune.name;
                 line = line.PadRight(columnSize, ' ');
 
                 runeoutput[currentRow] += line;
@@ -725,6 +975,7 @@ namespace Leauge_Auto_Accept
             foreach (var spell in spellsFiltered)
             {
                 string line = "   " + LocalizeSelectionValue(spell.name);
+                string line = "   " + spell.name;
                 line = line.PadRight(columnSize, ' ');
 
                 spelloutput[currentRow] += line;
@@ -774,6 +1025,7 @@ namespace Leauge_Auto_Accept
             Navigation.currentPos = 0;
             Console.CursorVisible = false;
             string consoleLine = Localization.Localize("Search: ") + Navigation.currentInput;
+            string consoleLine = "Search: " + Navigation.currentInput;
             Print.printCentered(consoleLine, Console.WindowHeight - 1, false, true);
 
             Console.SetCursorPosition(0, 0);
@@ -904,6 +1156,7 @@ namespace Leauge_Auto_Accept
             {
                 string newMessageLabel = "[" + Localization.Localize("New message") + "]";
                 Print.printWhenPossible(newMessageLabel, currentConsoleRow++, leftPad + 3, false);
+                Print.printWhenPossible("[new message]", currentConsoleRow++, leftPad + 3, false);
             }
 
             // Print pages count, if needed
@@ -915,6 +1168,9 @@ namespace Leauge_Auto_Accept
                 string nextText = Localization.Localize("next page ->");
                 pagesPrint = Print.replaceAt(pagesPrint, previousText, leftPad + 3);
                 pagesPrint = Print.replaceAt(pagesPrint, nextText, SizeHandler.WindowWidth - nextText.Length - 3);
+                string pagesPrint = Print.centerString("Current page: " + (pageToLoad + 1) + " / " + totalPages)[0];
+                pagesPrint = Print.replaceAt(pagesPrint, "<- previous page", leftPad + 3);
+                pagesPrint = Print.replaceAt(pagesPrint, "next page ->", SizeHandler.WindowWidth - 17);
                 Print.printWhenPossible(pagesPrint, SizeHandler.WindowHeight - 2, 0, false);
             }
 
@@ -958,6 +1214,7 @@ namespace Leauge_Auto_Accept
             {
                 Print.printWhenPossible(actionLabels[i], topPad + 3, actionColumns[i], false);
             }
+            Print.printCentered("Save          Delete         Cancel", topPad + 3, false);
 
 
             Print.canMovePos = true;

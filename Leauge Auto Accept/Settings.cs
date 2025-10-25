@@ -447,6 +447,8 @@ namespace Leauge_Auto_Accept
 
             config += ",language:" + currentLanguage;
 
+                ",chatMessages:" + encodeMessagesIntoBase64();
+
             string dirParameter = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Leauge Auto Accept Config.txt";
             using (StreamWriter m_WriterParameter = new StreamWriter(dirParameter, false))
             {
@@ -651,6 +653,9 @@ namespace Leauge_Auto_Accept
             }
 
             Localization.SetLanguage(currentLanguage);
+                    }
+                }
+            }
         }
     }
 }
