@@ -11,10 +11,6 @@ namespace Leauge_Auto_Accept
         public static string[] currentChampRunes = { "Unselected", "0" };
         public static string[] currentBackupChamp = { "Unselected", "0" };
         public static string[] currentBackupChampRunes = { "Unselected", "0" };
-        public static string[] secondaryChamp = { "Unselected", "0" };
-        public static string[] secondaryChampRunes = { "Unselected", "0" };
-        public static string[] secondaryBackupChamp = { "Unselected", "0" };
-        public static string[] secondaryBackupChampRunes = { "Unselected", "0" };
         public static string[] currentBan = { "Unselected", "0" };
         public static string[] currentSpell1 = { "Unselected", "0" };
         public static string[] currentSpell2 = { "Unselected", "0" };
@@ -27,11 +23,9 @@ namespace Leauge_Auto_Accept
         public static string[] crowdFavouraiteChamp5 = { "Unselected", "0" };
         public static bool chatMessagesEnabled = false;
         public static List<string> chatMessages = new List<string>();
-        public static bool saveSettings = false;
         public static bool preloadData = false;
         public static bool instaLock = false;
         public static bool instaBan = false;
-        public static bool disableUpdateCheck = false;
         public static bool autoPickOrderTrade = false;
         public static bool instantHover = false;
         public static bool shouldAutoAcceptbeOn = false;
@@ -52,65 +46,32 @@ namespace Leauge_Auto_Accept
             switch (item)
             {
                 case 0:
-                    if (saveSettings && preloadData)
-                    {
-                        preloadData = !preloadData;
-                        UI.settingsMenuUpdateUI(1);
-                    }
-                    if (saveSettings && disableUpdateCheck)
-                    {
-                        disableUpdateCheck = !disableUpdateCheck;
-                        UI.settingsMenuUpdateUI(4);
-                    }
-                    saveSettings = !saveSettings;
-                    break;
-                case 1:
-                    if (!preloadData && !saveSettings)
-                    {
-                        saveSettings = !saveSettings;
-                        UI.settingsMenuUpdateUI(0);
-                    }
                     preloadData = !preloadData;
                     break;
-                case 2:
+                case 1:
                     instaLock = !instaLock;
                     break;
-                case 3:
+                case 2:
                     instaBan = !instaBan;
                     break;
-                case 4:
-                    if (!disableUpdateCheck && !saveSettings)
-                    {
-                        saveSettings = !saveSettings;
-                        UI.settingsMenuUpdateUI(0);
-                    }
-                    disableUpdateCheck = !disableUpdateCheck;
-                    break;
-                case 5:
+                case 3:
                     autoPickOrderTrade = !autoPickOrderTrade;
                     break;
-                case 6:
+                case 4:
                     instantHover = !instantHover;
                     break;
-                case 7:
+                case 5:
                     autoRestartQueue = !autoRestartQueue;
                     break;
-                case 8:
+                case 6:
                     cancelQueueAfterDodge = !cancelQueueAfterDodge;
                     break;
-                case 9:
+                case 7:
                     UI.delayMenu();
-                    break;
+                    return;
             }
 
-            if (saveSettings)
-            {
-                settingsSave();
-            }
-            else if (item == 0)
-            {
-                deleteSettings();
-            }
+            settingsSave();
         }
 
         public static void delayModify(int item, int number)
@@ -118,85 +79,80 @@ namespace Leauge_Auto_Accept
             switch (item)
             {
                 case 0:
-                    {
-                        int newNum = delayCalculateNewValue(pickStartHoverDelay, number);
-                        pickStartHoverDelay = newNum;
-                    }
+                    pickStartHoverDelay = delayCalculateNewValue(pickStartHoverDelay, number);
                     break;
                 case 1:
-                    {
-                        int newNum = delayCalculateNewValue(pickStartlockDelay, number);
-                        pickStartlockDelay = newNum;
-                    }
+                    pickStartlockDelay = delayCalculateNewValue(pickStartlockDelay, number);
                     break;
                 case 2:
-                    {
-                        int newNum = delayCalculateNewValue(pickEndlockDelay, number);
-                        pickEndlockDelay = newNum;
-                    }
+                    pickEndlockDelay = delayCalculateNewValue(pickEndlockDelay, number);
                     break;
                 case 3:
-                    {
-                        int newNum = delayCalculateNewValue(banStartHoverDelay, number);
-                        banStartHoverDelay = newNum;
-                    }
+                    banStartHoverDelay = delayCalculateNewValue(banStartHoverDelay, number);
                     break;
                 case 4:
-                    {
-                        int newNum = delayCalculateNewValue(banStartlockDelay, number);
-                        banStartlockDelay = newNum;
-                    }
+                    banStartlockDelay = delayCalculateNewValue(banStartlockDelay, number);
                     break;
                 case 5:
-                    {
-                        int newNum = delayCalculateNewValue(banEndlockDelay, number);
-                        banEndlockDelay = newNum;
-                    }
+                    banEndlockDelay = delayCalculateNewValue(banEndlockDelay, number);
                     break;
                 case 6:
-                    {
-                        int newNum = delayCalculateNewValue(queueMaxTime, number);
-                        queueMaxTime = newNum;
-                    }
+                    queueMaxTime = delayCalculateNewValue(queueMaxTime, number);
                     break;
                 case 7:
-                    {
-                        int newNum = delayCalculateNewValue(chatMessagesDelay, number);
-                        chatMessagesDelay = newNum;
-                    }
+                    chatMessagesDelay = delayCalculateNewValue(chatMessagesDelay, number);
                     break;
             }
 
-            if (saveSettings)
-            {
-                settingsSave();
-            }
+            settingsSave();
         }
+
+        private const int MaxDelaySeconds = 1000000;
 
         public static int delayCalculateNewValue(int oldValue, int modifier)
         {
-            string newNumString = oldValue.ToString();
+            int seconds = ConvertMillisecondsToSeconds(oldValue);
+            string newNumString = seconds.ToString();
 
             if (modifier >= 0)
             {
-                newNumString = newNumString + modifier.ToString();
-                if (newNumString.Length > 9)
+                newNumString = newNumString == "0" ? modifier.ToString() : newNumString + modifier.ToString();
+                if (newNumString.Length > MaxDelaySeconds.ToString().Length)
                 {
-                    newNumString = "999999999";
+                    newNumString = MaxDelaySeconds.ToString();
                 }
             }
             else
             {
-                newNumString = newNumString.Substring(0, newNumString.Length - 1);
-                if (newNumString.Length == 0)
+                if (newNumString.Length > 1)
+                {
+                    newNumString = newNumString.Substring(0, newNumString.Length - 1);
+                }
+                else
                 {
                     newNumString = "0";
                 }
             }
 
-            int newNum = Int32.Parse(newNumString);
+            int newSeconds = Int32.Parse(newNumString);
+            if (newSeconds > MaxDelaySeconds)
+            {
+                newSeconds = MaxDelaySeconds;
+            }
 
-            return newNum;
+            return ConvertSecondsToMilliseconds(newSeconds);
+        }
+
+        public static int ConvertMillisecondsToSeconds(int milliseconds)
+        {
+            double seconds = milliseconds / 1000.0;
+            int rounded = (int)Math.Round(seconds, MidpointRounding.AwayFromZero);
+            return Math.Max(0, rounded);
+        }
+
+        private static int ConvertSecondsToMilliseconds(int seconds)
+        {
+            return Math.Max(0, seconds) * 1000;
         }
 
         public static void saveSelectedChamp()
@@ -252,14 +208,6 @@ namespace Leauge_Auto_Accept
                         currentBackupChamp[0] = name;
                         currentBackupChamp[1] = id;
                         break;
-                    case 2:
-                        secondaryChamp[0] = name;
-                        secondaryChamp[1] = id;
-                        break;
-                    case 3:
-                        secondaryBackupChamp[0] = name;
-                        secondaryBackupChamp[1] = id;
-                        break;
                     case 4:
                         currentBan[0] = name;
                         currentBan[1] = id;
@@ -286,10 +234,7 @@ namespace Leauge_Auto_Accept
                         break;
                 }
 
-                if (saveSettings)
-                {
-                    settingsSave();
-                }
+                settingsSave();
             }
         }
 
@@ -332,10 +277,7 @@ namespace Leauge_Auto_Accept
                     currentSpell2[0] = name;
                     currentSpell2[1] = id;
                 }
-                if (saveSettings)
-                {
-                    settingsSave();
-                }
+                settingsSave();
             }
         }
 
@@ -379,20 +321,9 @@ namespace Leauge_Auto_Accept
                         currentBackupChampRunes[0] = name;
                         currentBackupChampRunes[1] = id;
                         break;
-                    case 2:
-                        secondaryChampRunes[0] = name;
-                        secondaryChampRunes[1] = id;
-                        break;
-                    case 3:
-                        secondaryBackupChampRunes[0] = name;
-                        secondaryBackupChampRunes[1] = id;
-                        break;
                 }
 
-                if (saveSettings)
-                {
-                    settingsSave();
-                }
+                settingsSave();
             }
         }
 
@@ -407,10 +338,7 @@ namespace Leauge_Auto_Accept
                 chatMessages.Add(Navigation.currentInput);
             }
             updateChatMessagesToggle();
-            if (saveSettings)
-            {
-                settingsSave();
-            }
+            settingsSave();
         }
 
         public static void deleteChatMessage()
@@ -421,10 +349,7 @@ namespace Leauge_Auto_Accept
             }
             updateChatMessagesToggle();
 
-            if (saveSettings)
-            {
-                settingsSave();
-            }
+            settingsSave();
         }
 
         private static void updateChatMessagesToggle()
@@ -466,14 +391,6 @@ namespace Leauge_Auto_Accept
                 ",champBackupId:" + currentBackupChamp[1] +
                 ",champBackupRuneName:" + currentBackupChampRunes[0] +
                 ",champBackupRuneId:" + currentBackupChampRunes[1] +
-                ",secondaryChampName:" + secondaryChamp[0] + 
-                ",secondaryChampId:" + secondaryChamp[1] +
-                ",secondaryChampRuneName:" + secondaryChampRunes[0] +
-                ",secondaryChampRuneId:" + secondaryChampRunes[1] +
-                ",secondaryBackupChampName:" + secondaryBackupChamp[0] +
-                ",secondaryBackupChampId:" + secondaryBackupChamp[1] +
-                ",secondaryBackupChampRuneName:" + secondaryBackupChampRunes[0] +
-                ",secondaryBackupChampRuneId:" + secondaryBackupChampRunes[1] +
                 ",arenaBravery:" + bravery +
                 ",banCrowdFavourite:" + banCrowdFavourite +
                 ",arenaCrowdFavourite1Name:" + crowdFavouraiteChamp1[0] +
@@ -508,7 +425,6 @@ namespace Leauge_Auto_Accept
                 ",instantHover:" + instantHover +
                 ",autoRestartQueue:" + autoRestartQueue +
                 ",cancelQueueAfterDodge:" + cancelQueueAfterDodge +
-                ",disableUpdateCheck:" + disableUpdateCheck +
                 ",chatMessages:" + encodeMessagesIntoBase64();
 
             string dirParameter = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Leauge Auto Accept Config.txt";
@@ -521,19 +437,13 @@ namespace Leauge_Auto_Accept
         public static void toggleBraverySetting()
         {
             bravery = !bravery;
-            if (saveSettings)
-            {
-                settingsSave();
-            }
+            settingsSave();
         }
 
         public static void toggleBanCrowdFavouriteSetting()
         {
             banCrowdFavourite = !banCrowdFavourite;
-            if (saveSettings)
-            {
-                settingsSave();
-            }
+            settingsSave();
         }
 
         public static void toggleAutoAcceptSetting()
@@ -548,16 +458,7 @@ namespace Leauge_Auto_Accept
                 MainLogic.isAutoAcceptOn = true;
                 shouldAutoAcceptbeOn = true;
             }
-            if (saveSettings)
-            {
-                settingsSave();
-            }
-        }
-
-        public static void deleteSettings()
-        {
-            string dirParameter = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Leauge Auto Accept Config.txt";
-            File.Delete(dirParameter);
+            settingsSave();
         }
 
         public static void loadSettings()
@@ -596,30 +497,7 @@ namespace Leauge_Auto_Accept
                         case "champBackupRuneId":
                             currentBackupChampRunes[1] = columns[1];
                             break;
-                        case "secondaryChampName":
-                            secondaryChamp[0] = columns[1];
                             break;   
-                        case "secondaryChampId":
-                            secondaryChamp[1] = columns[1];
-                            break;
-                        case "secondaryChampRuneName":
-                            secondaryChampRunes[0] = columns[1];
-                            break;
-                        case "secondaryChampRuneId":
-                            secondaryChampRunes[1] = columns[1];
-                            break;
-                        case "secondaryBackupChampName":
-                            secondaryBackupChamp[0] = columns[1];
-                            break;
-                        case "secondaryBackupChampId":
-                            secondaryBackupChamp[1] = columns[1];
-                            break;
-                        case "secondaryBackupChampRuneName":
-                            secondaryBackupChampRunes[0] = columns[1];
-                            break;
-                        case "secondaryBackupChampRuneId":
-                            secondaryBackupChampRunes[1] = columns[1];
-                            break;
                         case "arenaBravery":
                             bravery = Boolean.Parse(columns[1]);
                             break;
@@ -710,9 +588,6 @@ namespace Leauge_Auto_Accept
                         case "instaBan":
                             instaBan = Boolean.Parse(columns[1]);
                             break;
-                        case "disableUpdateCheck":
-                            disableUpdateCheck = Boolean.Parse(columns[1]);
-                            break;
                         case "autoPickOrderTrade":
                             autoPickOrderTrade = Boolean.Parse(columns[1]);
                             break;
@@ -730,7 +605,6 @@ namespace Leauge_Auto_Accept
                             updateChatMessagesToggle();
                             break;
                     }
-                    saveSettings = true;
                 }
             }
         }

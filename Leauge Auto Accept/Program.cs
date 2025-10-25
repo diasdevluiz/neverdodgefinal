@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Net.Http.Headers;
 using System.Net.Http;
-using System.Reflection;
 
 namespace Leauge_Auto_Accept
 {
@@ -50,8 +49,6 @@ namespace Leauge_Auto_Accept
 
             // Attempt to load existing settings
             Settings.loadSettings();
-
-            Updater.initialize();
 
             // Start a bunch of task
             var taskKeys = new Task(Navigation.ReadKeys);
