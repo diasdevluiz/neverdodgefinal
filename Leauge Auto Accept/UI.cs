@@ -60,6 +60,7 @@ namespace Leauge_Auto_Accept
             windowType = "nocursor";
             showCursor = false;
 
+            Print.printCentered(Localization.Localize("Initializing..."), SizeHandler.HeightCenter);
             Print.printCentered("Initializing...", SizeHandler.HeightCenter);
         }
 
@@ -72,6 +73,7 @@ namespace Leauge_Auto_Accept
 
             Console.Clear();
 
+            Print.printCentered(Localization.Localize("League client cannot be found."), SizeHandler.HeightCenter);
             Print.printCentered("League client cannot be found.", SizeHandler.HeightCenter);
         }
 
@@ -91,6 +93,13 @@ namespace Leauge_Auto_Accept
 
             if (direction == "width")
             {
+                Print.printCentered(Localization.Localize("Console width is too small. Please resize it."), SizeHandler.HeightCenter);
+                Print.printCentered(Localization.Format("Minimum width: {0} | Current width: {1}", SizeHandler.minWidth, SizeHandler.WindowWidth));
+            }
+            else
+            {
+                Print.printCentered(Localization.Localize("Console height is too small. Please resize it."), SizeHandler.HeightCenter);
+                Print.printCentered(Localization.Format("Minimum height: {0} | Current height: {1}", SizeHandler.minHeight, SizeHandler.WindowHeight));
                 Print.printCentered("Console width is too small. Please resize it.", SizeHandler.HeightCenter);
                 Print.printCentered("Minimum width:" + SizeHandler.minWidth + " | Current width:" + SizeHandler.WindowWidth);
             }
@@ -155,6 +164,7 @@ namespace Leauge_Auto_Accept
             currentWindow = "mainScreen";
             windowType = "normal";
             showCursor = false;
+            topPad = SizeHandler.HeightCenter - 6;
             topPad = SizeHandler.HeightCenter - 5;
             leftPad = SizeHandler.WidthCenter - 25;
 
@@ -162,6 +172,36 @@ namespace Leauge_Auto_Accept
 
             // Define options
             string[] optionName = {
+                Localization.Localize("Select primary champion"),
+                Localization.Localize("Primary rune page"),
+                Localization.Localize("Select backup champion"),
+                Localization.Localize("Backup rune page"),
+                Localization.Localize("Select a ban"),
+                Localization.Localize("Select a backup ban"),
+                Localization.Localize("Select summoner spell 1"),
+                Localization.Localize("Select summoner spell 2"),
+                Localization.Localize("Instant chat messages"),
+                Localization.Localize("Enable auto accept"),
+                Localization.Localize("Enable bravery")
+            };
+
+            string[] optionValue = {
+                LocalizeSelectionValue(Settings.currentChamp[0]),
+                LocalizeSelectionValue(Settings.currentChampRunes[0]),
+                LocalizeSelectionValue(Settings.currentBackupChamp[0]),
+                LocalizeSelectionValue(Settings.currentBackupChampRunes[0]),
+                LocalizeSelectionValue(Settings.currentBan[0]),
+                LocalizeSelectionValue(Settings.currentBackupBan[0]),
+                LocalizeSelectionValue(Settings.currentSpell1[0]),
+                LocalizeSelectionValue(Settings.currentSpell2[0]),
+                Settings.chatMessagesEnabled ? Localization.FormatEnabledCount(Settings.chatMessages.Count) : Localization.Localize("Disabled"),
+                Localization.LocalizeEnabled(MainLogic.isAutoAcceptOn),
+                Localization.LocalizeBoolean(Settings.bravery)
+            };
+
+            numOptions = optionName.Length;
+            maxPos = numOptions + 1;
+
                 "Select primary champion",
                 " Rune page",
                 "Primary backup champion",
@@ -193,6 +233,7 @@ namespace Leauge_Auto_Accept
                 Print.printCentered(addDotsInBetween(optionName[i], optionValue[i]), topPad + i);
             }
 
+            Print.printWhenPossible("  " + Localization.Localize("Settings"), SizeHandler.HeightCenter + numOptions, leftPad + 1);
             // Print the two bottom buttons that are not actual settings
             Print.printWhenPossible("  Settings", SizeHandler.HeightCenter + numOptions, leftPad + 1);
             Print.printWhenPossible("  Arena", SizeHandler.HeightCenter + numOptions, leftPad + 20);
@@ -204,6 +245,14 @@ namespace Leauge_Auto_Accept
 
         public static void toggleAutoAcceptSettingUI(int pos)
         {
+            string optionText = addDotsInBetween(Localization.Localize("Enable auto accept"), Localization.LocalizeEnabled(MainLogic.isAutoAcceptOn));
+            Print.printCentered(optionText, topPad + pos);
+        }
+
+        public static void toggleBraverySettingUI(int pos)
+        {
+            string optionText = addDotsInBetween(Localization.Localize("Enable bravery"), Localization.LocalizeBoolean(Settings.bravery));
+            Print.printCentered(optionText, topPad + pos);
             Print.printWhenPossible(MainLogic.isAutoAcceptOn ? ". Enabled" : " Disabled", topPad + pos, leftPad + 38);
         }
 
@@ -323,6 +372,34 @@ namespace Leauge_Auto_Accept
 
             // Define options
             string[] optionName = {
+                Localization.Localize("Preload data"),
+                Localization.Localize("Instalock pick"),
+                Localization.Localize("Instalock ban"),
+                Localization.Localize("Automatically trade pick order"),
+                Localization.Localize("Instantly hover pick"),
+                Localization.Localize("Automatically restart queue"),
+                Localization.Localize("Cancel queue after dodge"),
+                Localization.Localize("Ban ally hovered champions"),
+                Localization.Localize("Language"),
+                Localization.Localize("Delay settings")
+            };
+
+            string[] optionValue = {
+                Localization.LocalizeBoolean(Settings.preloadData),
+                Localization.LocalizeBoolean(Settings.instaLock),
+                Localization.LocalizeBoolean(Settings.instaBan),
+                Localization.LocalizeBoolean(Settings.autoPickOrderTrade),
+                Localization.LocalizeBoolean(Settings.instantHover),
+                Localization.LocalizeBoolean(Settings.autoRestartQueue),
+                Localization.LocalizeBoolean(Settings.cancelQueueAfterDodge),
+                Localization.LocalizeBoolean(Settings.banAlliedChampions),
+                Localization.GetLanguageLabel(Settings.currentLanguage),
+                string.Empty
+            };
+
+            numOptions = optionName.Length;
+            maxPos = numOptions;
+
                 "Preload data",
                 "Instalock pick",
                 "Instalock ban",
@@ -363,6 +440,40 @@ namespace Leauge_Auto_Accept
             switch (item)
             {
                 case 0:
+                    Print.printCentered(Localization.Localize("Preload all data the app will need on launch."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("This includes champions list, summoner spells list and more."));
+                    break;
+                case 1:
+                    Print.printCentered(Localization.Localize("Instantly lock in when it's your turn to pick."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("This will bypass the lock in delay setting."));
+                    break;
+                case 2:
+                    Print.printCentered(Localization.Localize("Instantly lock in when it's your turn to ban."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("This will bypass the lock in delay setting."));
+                    break;
+                case 3:
+                    Print.printCentered(Localization.Localize("Automatically trade pick order when someone requests to."), topPad + maxPos + 2);
+                    break;
+                case 4:
+                    Print.printCentered(Localization.Localize("Instantly hover champion as soon as joining champ select."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("In draft pick, it will hover before you are normally able to."));
+                    break;
+                case 5:
+                    Print.printCentered(Localization.Localize("Automatically restart queue every few minutes."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 5 minutes, can be configured in the delays settings."));
+                    break;
+                case 6:
+                    Print.printCentered(Localization.Localize("Automatically cancel the queue after someone dodges the lobby."), topPad + maxPos + 2);
+                    break;
+                case 7:
+                    Print.printCentered(Localization.Localize("Ban selected champions even when allies hover them."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Disable this to respect ally hovers when banning."));
+                    break;
+                case 8:
+                    Print.printCentered(Localization.Localize("Toggle between available interface languages."), topPad + maxPos + 2);
+                    break;
+                case 9:
+                    Print.printCentered(Localization.Localize("Adjust different delays."), topPad + maxPos + 2);
                     Print.printCentered("Preload all data the app will need on launch.", topPad + maxPos + 2);
                     Print.printCentered("This includes champions list, summoner spells list and more.");
                     break;
@@ -399,6 +510,37 @@ namespace Leauge_Auto_Accept
 
         public static void settingsMenuUpdateUI(int item)
         {
+            string optionName = item switch
+            {
+                0 => Localization.Localize("Preload data"),
+                1 => Localization.Localize("Instalock pick"),
+                2 => Localization.Localize("Instalock ban"),
+                3 => Localization.Localize("Automatically trade pick order"),
+                4 => Localization.Localize("Instantly hover pick"),
+                5 => Localization.Localize("Automatically restart queue"),
+                6 => Localization.Localize("Cancel queue after dodge"),
+                7 => Localization.Localize("Ban ally hovered champions"),
+                8 => Localization.Localize("Language"),
+                9 => Localization.Localize("Delay settings"),
+                _ => string.Empty
+            };
+
+            string value = item switch
+            {
+                0 => Localization.LocalizeBoolean(Settings.preloadData),
+                1 => Localization.LocalizeBoolean(Settings.instaLock),
+                2 => Localization.LocalizeBoolean(Settings.instaBan),
+                3 => Localization.LocalizeBoolean(Settings.autoPickOrderTrade),
+                4 => Localization.LocalizeBoolean(Settings.instantHover),
+                5 => Localization.LocalizeBoolean(Settings.autoRestartQueue),
+                6 => Localization.LocalizeBoolean(Settings.cancelQueueAfterDodge),
+                7 => Localization.LocalizeBoolean(Settings.banAlliedChampions),
+                8 => Localization.GetLanguageLabel(Settings.currentLanguage),
+                9 => string.Empty,
+                _ => string.Empty
+            };
+
+            Print.printCentered(addDotsInBetween(optionName, value), topPad + item);
             // Select item to toggle from settings
 
             string outputText = item switch
@@ -434,6 +576,14 @@ namespace Leauge_Auto_Accept
 
             // Define options
             string[] optionName = {
+                Localization.Localize("Pick hover delay upon phase start"),
+                Localization.Localize("Pick lock delay upon phase start"),
+                Localization.Localize("Pick lock delay before phase end"),
+                Localization.Localize("Ban hover delay upon phase start"),
+                Localization.Localize("Ban lock delay upon phase start"),
+                Localization.Localize("Ban lock delay before phase end"),
+                Localization.Localize("Max queue time before restart"),
+                Localization.Localize("Chat Messages Delay")
                 "Pick hover delay upon phase start",
                 "Pick lock delay upon phase start",
                 "Pick lock delay before phase end",
@@ -479,6 +629,36 @@ namespace Leauge_Auto_Accept
             switch (item)
             {
                 case 0:
+                    Print.printCentered(Localization.Localize("Delay after which to hover your pick."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 10 seconds."));
+                    break;
+                case 1:
+                    Print.printCentered(Localization.Localize("Delay after which to lock in your pick, after you are able to."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 1000000 seconds."));
+                    break;
+                case 2:
+                    Print.printCentered(Localization.Localize("Time to lock in before your time runs out."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Do not set too low (less than 1 second), it will cause you to dodge. Default is 1 second."));
+                    break;
+                case 3:
+                    Print.printCentered(Localization.Localize("Delay after which to hover your ban."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 2 seconds."));
+                    break;
+                case 4:
+                    Print.printCentered(Localization.Localize("Delay after which to lock in your pick, after you are able to."), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 1000000 seconds."));
+                    break;
+                case 5:
+                    Print.printCentered(Localization.Localize("Time to lock in before your time runs out"), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 1 second."));
+                    break;
+                case 6:
+                    Print.printCentered(Localization.Localize("How long should the queue be before cancelling and restarting it?"), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 300 seconds."));
+                    break;
+                case 7:
+                    Print.printCentered(Localization.Localize("Delay after which the chat messages will be sent"), topPad + maxPos + 2);
+                    Print.printCentered(Localization.Localize("Default is 0 seconds."));
                     Print.printCentered("Delay after which to hover your pick.", topPad + maxPos + 2);
                     Print.printCentered("Default is 10 seconds.");
                     break;
@@ -547,6 +727,11 @@ namespace Leauge_Auto_Accept
 
             Console.Clear();
 
+            Print.printCentered(Localization.Localize("Are you sure you want to close this app?"), topPad - 2);
+            string noOption = (" " + Localization.Localize("No")).PadLeft(32, ' ');
+            string yesOption = Localization.Localize("Yes") + " ";
+            Print.printWhenPossible(noOption, topPad, leftPad + 3, false);
+            Print.printWhenPossible(yesOption, topPad, leftPad + 3, false);
             Print.printCentered("Are you sure you want to close this app?", topPad - 2);
             Print.printWhenPossible((" No").PadLeft(32, ' '), topPad, leftPad + 3, false);
             Print.printWhenPossible("Yes ", topPad, leftPad + 3, false);
@@ -592,6 +777,7 @@ namespace Leauge_Auto_Accept
             {
                 champsFiltered.Add(new itemList() { name = "Unselected", id = "0" });
             }
+            if (currentChampPicker == 4 || currentChampPicker == 10)
             if (currentChampPicker == 4)
             {
                 if ("none".Contains(Navigation.currentInput.ToLower()))
@@ -604,6 +790,7 @@ namespace Leauge_Auto_Accept
                 if (champ.name.ToLower().Contains(Navigation.currentInput.ToLower()))
                 {
                     // Make sure the champ is free or if it's for a ban before adding it to the list
+                     if (champ.free || (currentChampPicker == 4 || currentChampPicker == 10) && int.Parse(champ.id) < 10000)
                      if (champ.free || currentChampPicker == 4 && int.Parse(champ.id) < 10000)
                     {
                         champsFiltered.Add(new itemList() { name = champ.name, id = champ.id });
@@ -619,6 +806,7 @@ namespace Leauge_Auto_Accept
 
             foreach (var champ in champsFiltered)
             {
+                string line = "   " + LocalizeSelectionValue(champ.name);
                 string line = "   " + champ.name;
                 line = line.PadRight(columnSize, ' ');
 
@@ -702,6 +890,7 @@ namespace Leauge_Auto_Accept
 
             foreach (var rune in runesFiltered)
             {
+                string line = "   " + LocalizeSelectionValue(rune.name);
                 string line = "   " + rune.name;
                 line = line.PadRight(columnSize, ' ');
 
@@ -785,6 +974,7 @@ namespace Leauge_Auto_Accept
 
             foreach (var spell in spellsFiltered)
             {
+                string line = "   " + LocalizeSelectionValue(spell.name);
                 string line = "   " + spell.name;
                 line = line.PadRight(columnSize, ' ');
 
@@ -834,6 +1024,7 @@ namespace Leauge_Auto_Accept
 
             Navigation.currentPos = 0;
             Console.CursorVisible = false;
+            string consoleLine = Localization.Localize("Search: ") + Navigation.currentInput;
             string consoleLine = "Search: " + Navigation.currentInput;
             Print.printCentered(consoleLine, Console.WindowHeight - 1, false, true);
 
@@ -866,6 +1057,21 @@ namespace Leauge_Auto_Accept
             }
 
             updateCursorPosition();
+        }
+
+        private static string LocalizeSelectionValue(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return Localization.Localize("Unselected");
+            }
+
+            return value switch
+            {
+                "Unselected" => Localization.Localize("Unselected"),
+                "None" => Localization.Localize("None"),
+                _ => value
+            };
         }
 
         private static string addDotsInBetween(string firstString, string secondString, int totalLength = 44)
@@ -948,12 +1154,20 @@ namespace Leauge_Auto_Accept
             // Add a button to create a new message
             if (!(currentMessagePrint + 1 > totalRows)) // +1 for "new message" row
             {
+                string newMessageLabel = "[" + Localization.Localize("New message") + "]";
+                Print.printWhenPossible(newMessageLabel, currentConsoleRow++, leftPad + 3, false);
                 Print.printWhenPossible("[new message]", currentConsoleRow++, leftPad + 3, false);
             }
 
             // Print pages count, if needed
             if (totalPages > 1)
             {
+                string pagesText = Localization.Format("Page {0}/{1}", pageToLoad + 1, totalPages);
+                string pagesPrint = Print.centerString(pagesText)[0];
+                string previousText = Localization.Localize("<- previous page");
+                string nextText = Localization.Localize("next page ->");
+                pagesPrint = Print.replaceAt(pagesPrint, previousText, leftPad + 3);
+                pagesPrint = Print.replaceAt(pagesPrint, nextText, SizeHandler.WindowWidth - nextText.Length - 3);
                 string pagesPrint = Print.centerString("Current page: " + (pageToLoad + 1) + " / " + totalPages)[0];
                 pagesPrint = Print.replaceAt(pagesPrint, "<- previous page", leftPad + 3);
                 pagesPrint = Print.replaceAt(pagesPrint, "next page ->", SizeHandler.WindowWidth - 17);
@@ -989,6 +1203,17 @@ namespace Leauge_Auto_Accept
 
             updateMessageEdit();
 
+            string[] actionLabels =
+            {
+                Localization.Localize("Save"),
+                Localization.Localize("Delete"),
+                Localization.Localize("Cancel")
+            };
+            int[] actionColumns = { leftPad - 21, leftPad - 7, leftPad + 8 };
+            for (int i = 0; i < actionLabels.Length; i++)
+            {
+                Print.printWhenPossible(actionLabels[i], topPad + 3, actionColumns[i], false);
+            }
             Print.printCentered("Save          Delete         Cancel", topPad + 3, false);
 
 

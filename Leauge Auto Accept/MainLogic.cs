@@ -1,5 +1,4 @@
-﻿using RestSharp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,6 +10,8 @@ namespace Leauge_Auto_Accept
         private static readonly NLog.ILogger Log = NLog.LogManager.GetCurrentClassLogger();
 
         public static bool isAutoAcceptOn = false;
+
+        private const int BraveryChampionId = -3;
 
         private static bool pickedChamp = false;
         private static bool lockedChamp = false;
@@ -90,8 +91,6 @@ namespace Leauge_Auto_Accept
                                 Thread.Sleep(5000);
                                 break;
                             default:
-                                //Debug.WriteLine(phase);
-                                // TODO: add more special cases?
                                 Thread.Sleep(1000);
                                 break;
                         }
@@ -417,11 +416,17 @@ namespace Leauge_Auto_Accept
                         }
                     }
 
+                    if (Settings.bravery && !pickedChamp)
+                    {
+                        hoverChampion(actId, BraveryChampionId, "pick");
+                        if (pickedChamp) championId = BraveryChampionId;
+                    }
+
                     // In arena mode runes and spells are disabled, so mark them as picked
                     pickedSpell1 = pickedSpell2 = true;
                 }
 
-                if (!pickedChamp && championId != -3)  //TODO: -3 is what???
+                if (!pickedChamp && championId != BraveryChampionId)  
                 {
                     int primaryChampId = int.Parse(Settings.currentChamp[1]);
                     int primaryRunesId = int.Parse(Settings.currentChampRunes[1]);
@@ -453,8 +458,8 @@ namespace Leauge_Auto_Accept
                 {
                     if (!pickedChamp)
                     {
-                        hoverChampion(actId, -3, "pick");
-                        if (pickedChamp) championId = -3;
+                        hoverChampion(actId, BraveryChampionId, "pick");
+                        if (pickedChamp) championId = BraveryChampionId;
                     }
 
                     lockedChamp = false;
@@ -485,9 +490,12 @@ namespace Leauge_Auto_Accept
 
                     if (currentTime - Settings.banStartHoverDelay > champSelectStart) // Check if enough time has passed since planning phase has started
                     {
-                        // Ban none if the setting is disabled.
-                        bool dontBanCrowd = isArena && Settings.banCrowdFavourite && isInCrowdFavoriteChamps(Settings.currentBan[1]);
-                        hoverChampion(actId, int.Parse(dontBanCrowd ? "0" : Settings.currentBan[1]), "ban");
+                        int banTarget = DetermineBanChampionId(currentChampSelect);
+                        hoverChampion(actId, banTarget, "ban");
+                        if (pickedBan)
+                        {
+                            championId = banTarget;
+                        }
                     }
                 }
 
@@ -504,6 +512,116 @@ namespace Leauge_Auto_Accept
                     }
                 }
             }
+        }
+
+        private static int DetermineBanChampionId(LCUTypes.LolChampSelectSessionV1 currentChampSelect)
+        {
+            int primary = ParseBanId(Settings.currentBan[1]);
+            int backup = ParseBanId(Settings.currentBackupBan[1]);
+
+            bool considerAllyHover = !Settings.banAlliedChampions;
+
+            bool primaryHovered = considerAllyHover && IsAllyHoveringChampion(currentChampSelect, primary);
+            bool backupHovered = considerAllyHover && IsAllyHoveringChampion(currentChampSelect, backup);
+
+            if (considerAllyHover && primaryHovered && backupHovered && IsPositiveChampion(primary) && IsPositiveChampion(backup))
+            {
+                return 0;
+            }
+
+            bool primaryUnavailable = !IsSelectableBan(primary) ||
+                                      IsChampionAlreadyBanned(currentChampSelect, primary) ||
+                                      (considerAllyHover && primaryHovered) ||
+                                      IsCrowdFavorite(primary);
+
+            bool backupUnavailable = !IsSelectableBan(backup) ||
+                                     IsChampionAlreadyBanned(currentChampSelect, backup) ||
+                                     IsCrowdFavorite(backup);
+
+            if (!primaryUnavailable)
+            {
+                return primary;
+            }
+
+            if (!backupUnavailable)
+            {
+                return backup;
+            }
+
+            if (primary == -1 || backup == -1)
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        private static int ParseBanId(string value)
+        {
+            if (Int32.TryParse(value, out int id))
+            {
+                return id;
+            }
+
+            return 0;
+        }
+
+        private static bool IsSelectableBan(int championId) => championId > 0;
+
+        private static bool IsPositiveChampion(int championId) => championId > 0;
+
+        private static bool IsCrowdFavorite(int championId)
+        {
+            if (!isArena || !Settings.banCrowdFavourite || !IsPositiveChampion(championId))
+            {
+                return false;
+            }
+
+            return isInCrowdFavoriteChamps(championId.ToString());
+        }
+
+        private static bool IsAllyHoveringChampion(LCUTypes.LolChampSelectSessionV1 currentChampSelect, int championId)
+        {
+            if (!IsPositiveChampion(championId))
+            {
+                return false;
+            }
+
+            foreach (var teammate in currentChampSelect.MyTeam)
+            {
+                if (teammate.CellId == currentChampSelect.LocalPlayerCellId)
+                {
+                    continue;
+                }
+
+                if (teammate.ChampionPickIntent == championId || teammate.ChampionId == championId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsChampionAlreadyBanned(LCUTypes.LolChampSelectSessionV1 currentChampSelect, int championId)
+        {
+            if (!IsPositiveChampion(championId))
+            {
+                return false;
+            }
+
+            foreach (var actionSet in currentChampSelect.Actions)
+            {
+                foreach (var action in actionSet.AsArray())
+                {
+                    if ((string)action["type"] == "ban" && (bool)action["completed"] && (int)action["championId"] == championId)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static void hoverChampion(int actId, int currentChampId, string actType)

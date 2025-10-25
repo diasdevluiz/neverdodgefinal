@@ -336,6 +336,7 @@ namespace Leauge_Auto_Accept
                         {
                             Settings.saveSelectedRune();
                         }
+                        UI.mainScreen();
                         if (UI.previousWindow == "arenaMenu")
                         {
                             UI.previousWindow = "";
@@ -425,6 +426,8 @@ namespace Leauge_Auto_Accept
                 if (UI.currentWindow == "mainScreen" && consolePosLast >= UI.numOptions)
                 {
                     // Handles the weird main menu navigation
+                    positionLeft = UI.leftPad;
+                    positionTop = SizeHandler.HeightCenter + UI.numOptions;
                     if (consolePosLast == UI.numOptions) // Settings
                     {
                         positionLeft = UI.leftPad;
@@ -478,6 +481,8 @@ namespace Leauge_Auto_Accept
 
                 if (UI.currentWindow == "mainScreen" && currentPos >= UI.numOptions)
                 {
+                    positionLeft = UI.leftPad;
+                    positionTop = SizeHandler.HeightCenter + UI.numOptions;
                     if (currentPos == UI.numOptions) // Settings
                     {
                         positionLeft = UI.leftPad;
@@ -621,6 +626,32 @@ namespace Leauge_Auto_Accept
                     UI.champSelector();
                     break;
                 case 5:
+                    UI.currentChampPicker = 10;
+                    UI.champSelector();
+                    break;
+                case 6:
+                    UI.currentSpellSlot = 0;
+                    UI.spellSelector();
+                    break;
+                case 7:
+                    UI.currentSpellSlot = 1;
+                    UI.spellSelector();
+                    break;
+                case 8:
+                    UI.chatMessagesWindow();
+                    break;
+                case 9:
+                    Settings.toggleAutoAcceptSetting();
+                    UI.toggleAutoAcceptSettingUI(currentPos);
+                    break;
+                case 10:
+                    Settings.toggleBraverySetting();
+                    UI.toggleBraverySettingUI(currentPos);
+                    break;
+                case 11:
+                    UI.settingsMenu();
+                    break;
+            }
                     UI.currentSpellSlot = 0;
                     UI.spellSelector();
                     break;

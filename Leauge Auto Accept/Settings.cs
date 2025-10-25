@@ -12,6 +12,7 @@ namespace Leauge_Auto_Accept
         public static string[] currentBackupChamp = { "Unselected", "0" };
         public static string[] currentBackupChampRunes = { "Unselected", "0" };
         public static string[] currentBan = { "Unselected", "0" };
+        public static string[] currentBackupBan = { "Unselected", "0" };
         public static string[] currentSpell1 = { "Unselected", "0" };
         public static string[] currentSpell2 = { "Unselected", "0" };
         public static bool bravery = false;
@@ -31,6 +32,9 @@ namespace Leauge_Auto_Accept
         public static bool shouldAutoAcceptbeOn = false;
         public static bool autoRestartQueue = false;
         public static bool cancelQueueAfterDodge = false;
+        public static bool banAlliedChampions = false;
+
+        public static Language currentLanguage = Language.EnUs;
 
         public static int pickStartHoverDelay = 10000;
         public static int pickStartlockDelay = 999999999;
@@ -67,6 +71,13 @@ namespace Leauge_Auto_Accept
                     cancelQueueAfterDodge = !cancelQueueAfterDodge;
                     break;
                 case 7:
+                    banAlliedChampions = !banAlliedChampions;
+                    break;
+                case 8:
+                    ToggleLanguage();
+                    UI.settingsMenu();
+                    return;
+                case 9:
                     UI.delayMenu();
                     return;
             }
@@ -211,6 +222,10 @@ namespace Leauge_Auto_Accept
                     case 4:
                         currentBan[0] = name;
                         currentBan[1] = id;
+                        break;
+                    case 10:
+                        currentBackupBan[0] = name;
+                        currentBackupBan[1] = id;
                         break;
                     case 5:
                         crowdFavouraiteChamp1[0] = name;
@@ -405,6 +420,8 @@ namespace Leauge_Auto_Accept
                 ",arenaCrowdFavourite5ChampId:" + crowdFavouraiteChamp5[1] +
                 ",banName:" + currentBan[0] +
                 ",banId:" + currentBan[1] +
+                ",banBackupName:" + currentBackupBan[0] +
+                ",banBackupId:" + currentBackupBan[1] +
                 ",spell1Name:" + currentSpell1[0] +
                 ",spell1Id:" + currentSpell1[1] +
                 ",spell2Name:" + currentSpell2[0] +
@@ -425,6 +442,11 @@ namespace Leauge_Auto_Accept
                 ",instantHover:" + instantHover +
                 ",autoRestartQueue:" + autoRestartQueue +
                 ",cancelQueueAfterDodge:" + cancelQueueAfterDodge +
+                ",banAlliedChampions:" + banAlliedChampions +
+                ",chatMessages:" + encodeMessagesIntoBase64();
+
+            config += ",language:" + currentLanguage;
+
                 ",chatMessages:" + encodeMessagesIntoBase64();
 
             string dirParameter = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Leauge Auto Accept Config.txt";
@@ -443,6 +465,13 @@ namespace Leauge_Auto_Accept
         public static void toggleBanCrowdFavouriteSetting()
         {
             banCrowdFavourite = !banCrowdFavourite;
+            settingsSave();
+        }
+
+        private static void ToggleLanguage()
+        {
+            currentLanguage = currentLanguage == Language.EnUs ? Language.PtBr : Language.EnUs;
+            Localization.SetLanguage(currentLanguage);
             settingsSave();
         }
 
@@ -540,6 +569,12 @@ namespace Leauge_Auto_Accept
                         case "banId":
                             currentBan[1] = columns[1];
                             break;
+                        case "banBackupName":
+                            currentBackupBan[0] = columns[1];
+                            break;
+                        case "banBackupId":
+                            currentBackupBan[1] = columns[1];
+                            break;
                         case "spell1Name":
                             currentSpell1[0] = columns[1];
                             break;
@@ -600,10 +635,24 @@ namespace Leauge_Auto_Accept
                         case "cancelQueueAfterDodge":
                             cancelQueueAfterDodge = Boolean.Parse(columns[1]);
                             break;
+                        case "banAlliedChampions":
+                            banAlliedChampions = Boolean.Parse(columns[1]);
+                            break;
                         case "chatMessages":
                             decodeMessagesFromBase64(columns[1]);
                             updateChatMessagesToggle();
                             break;
+                        case "language":
+                            if (Enum.TryParse(columns[1], out Language parsedLanguage))
+                            {
+                                currentLanguage = parsedLanguage;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            Localization.SetLanguage(currentLanguage);
                     }
                 }
             }
