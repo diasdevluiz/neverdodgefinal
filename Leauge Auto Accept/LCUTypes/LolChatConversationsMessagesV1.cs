@@ -1,4 +1,4 @@
-﻿namespace Leauge_Auto_Accept.LCUTypes;
+namespace Leauge_Auto_Accept.LCUTypes;
 
 internal class LolChatConversationsMessagesV1
 {
