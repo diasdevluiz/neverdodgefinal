@@ -291,34 +291,6 @@ namespace Leauge_Auto_Accept
         }
 
 
-        /// <summary>
-        /// Check player's assigned position and adjust champion pick to primary (true) or secondary (false)
-        /// </summary>
-        /// <param name="currentChampSelect"></param>
-        /// <param name="localPlayerCellId"></param>
-        /// <returns>true for usePrimaryChamp, false for useSecondaryChamp</returns>
-        private static bool handleChampPositionPreferences(LCUTypes.LolChampSelectSessionV1 currentChampSelect, int localPlayerCellId)
-        {
-            // Check lobby endpoint for position preferences
-            var lobbySessionResp = LCU.clientRequest<LCUTypes.LolLobbyV2Lobby>("GET", "lol-lobby/v2/lobby");
-            var lobbySession = lobbySessionResp.Data;
-
-            if (lobbySessionResp.IsSuccessful)
-            {
-                string firstPositionPreference = lobbySession.LocalMember.FirstPositionPreference;
-                string secondPositionPreference = lobbySession.LocalMember.SecondPositionPreference;
-
-                //find current player within MyTeam array
-                var player = currentChampSelect.MyTeam.Single(x => x.CellId == localPlayerCellId);
-
-                if (string.Compare(firstPositionPreference, player.AssignedPosition, true) == 0) return true;
-                if (string.Compare(secondPositionPreference, player.AssignedPosition, true) == 0) return false;
-
-            }
-            return true;
-        }
-
-
         private static void handleChampSelectChat(string chatId)
         {
             var conversationsResp = LCU.clientRequest<LCUTypes.LolChatConversationsV1[]>("GET", "lol-chat/v1/conversations", "");
@@ -392,8 +364,7 @@ namespace Leauge_Auto_Accept
                 switch(actionType)
                 {
                     case "pick":
-                        bool usePrimaryChamp = handleChampPositionPreferences(currentChampSelect, currentChampSelect.LocalPlayerCellId);
-                        handlePickAction(actId, championId, ActIsInProgress, currentChampSelect, usePrimaryChamp);
+                        handlePickAction(actId, championId, ActIsInProgress, currentChampSelect);
                         break;
                     case "ban":
                         handleBanAction(actId, championId, ActIsInProgress, currentChampSelect);
@@ -419,7 +390,7 @@ namespace Leauge_Auto_Accept
             champId == crowdFavorite4ChampId ||
             champId == crowdFavorite5ChampId;
 
-        private static void handlePickAction(int actId, int championId, bool ActIsInProgress, LCUTypes.LolChampSelectSessionV1 currentChampSelect, bool usePrimaryChamp)
+        private static void handlePickAction(int actId, int championId, bool ActIsInProgress, LCUTypes.LolChampSelectSessionV1 currentChampSelect)
         {
             // Check if the hover gets cleared (by either a ban or teammate taking it)
             if (championId == 0) pickedChamp = false;
@@ -452,16 +423,14 @@ namespace Leauge_Auto_Accept
 
                 if (!pickedChamp && championId != -3)  //TODO: -3 is what???
                 {
-                    int primaryChampId = int.Parse(usePrimaryChamp ? Settings.currentChamp[1] : Settings.secondaryChamp[1]);
-                    int primaryRunesId = int.Parse(usePrimaryChamp ? Settings.currentChampRunes[1] : Settings.secondaryChampRunes[1]);
-                    int backupChampId = int.Parse(usePrimaryChamp ? Settings.currentBackupChamp[1] : Settings.secondaryBackupChamp[1]);
-                    int backupRunesId = int.Parse(usePrimaryChamp ? Settings.currentBackupChampRunes[1] : Settings.secondaryBackupChampRunes[1]);
+                    int primaryChampId = int.Parse(Settings.currentChamp[1]);
+                    int primaryRunesId = int.Parse(Settings.currentChampRunes[1]);
+                    int backupChampId = int.Parse(Settings.currentBackupChamp[1]);
+                    int backupRunesId = int.Parse(Settings.currentBackupChampRunes[1]);
 
-                    // Try first choice based on player is assigned primary or secondary role
                     hoverChampion(actId, primaryChampId, "pick");
                     handleRunes(primaryRunesId);
 
-                    // If first choice didn't work (pickedChamp is still false), try second choice
                     if (!pickedChamp)
                     {
                         hoverChampion(actId, backupChampId, "pick");

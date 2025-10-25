@@ -125,9 +125,6 @@ namespace Leauge_Auto_Accept
                 case "leagueClientIsClosedMessage":
                     leagueClientIsClosedMessage();
                     break;
-                case "infoMenu":
-                    infoMenu();
-                    break;
                 case "exitMenu":
                     exitMenu();
                     break;
@@ -158,39 +155,16 @@ namespace Leauge_Auto_Accept
             currentWindow = "mainScreen";
             windowType = "normal";
             showCursor = false;
-            topPad = SizeHandler.HeightCenter - 1;
+            topPad = SizeHandler.HeightCenter - 5;
             leftPad = SizeHandler.WidthCenter - 25;
 
             Console.Clear();
-
-            // Define logo
-            string[] logo =
-            {
-                @"  _                                                 _                                     _   ",
-                @" | |                                     /\        | |            /\                     | |  ",
-                @" | |     ___  __ _  __ _ _   _  ___     /  \  _   _| |_ ___      /  \   ___ ___ ___ _ __ | |_ ",
-                @" | |    / _ \/ _` |/ _` | | | |/ _ \   / /\ \| | | | __/ _ \    / /\ \ / __/ __/ _ \ '_ \| __|",
-                @" | |___|  __/ (_| | (_| | |_| |  __/  / ____ \ |_| | || (_) |  / ____ \ (_| (_|  __/ |_) | |_ ",
-                @" |______\___|\__,_|\__, |\__,_|\___| /_/    \_\__,_|\__\___/  /_/    \_\___\___\___| .__/ \__|",
-                @"                    __/ |                                                          | |        ",
-                @"                   |___/                                                           |_|        "
-            };
-
-            // Print logo
-            for (int i = 0; i < logo.Length; i++)
-            {
-                Print.printCentered(logo[i], SizeHandler.HeightCenter - 12 + i);
-            }
 
             // Define options
             string[] optionName = {
                 "Select primary champion",
                 " Rune page",
                 "Primary backup champion",
-                " Rune page",
-                "Select secondary champion",
-                " Rune page",
-                "Secondary backup champion",
                 " Rune page",
                 "Select a ban",
                 "Select summoner spell 1",
@@ -203,10 +177,6 @@ namespace Leauge_Auto_Accept
                 Settings.currentChampRunes[0],
                 Settings.currentBackupChamp[0],
                 Settings.currentBackupChampRunes[0],
-                Settings.secondaryChamp[0],
-                Settings.secondaryChampRunes[0],
-                Settings.secondaryBackupChamp[0],
-                Settings.secondaryBackupChampRunes[0],
                 Settings.currentBan[0],
                 Settings.currentSpell1[0],
                 Settings.currentSpell2[0],
@@ -215,7 +185,7 @@ namespace Leauge_Auto_Accept
             };
 
             numOptions = optionName.Length;
-            maxPos = numOptions + 3; //Settings + Arena + Info
+            maxPos = numOptions + 2; //Settings + Arena
 
             // Print options
             for (int i = 0; i < optionName.Length; i++)
@@ -223,12 +193,9 @@ namespace Leauge_Auto_Accept
                 Print.printCentered(addDotsInBetween(optionName[i], optionValue[i]), topPad + i);
             }
 
-            // Print the two bottom buttons that are not actaul settings
-            Print.printWhenPossible("  Info", SizeHandler.HeightCenter + numOptions, leftPad + 41);
-            Print.printWhenPossible("  Arena", SizeHandler.HeightCenter + numOptions, leftPad + 20);
+            // Print the two bottom buttons that are not actual settings
             Print.printWhenPossible("  Settings", SizeHandler.HeightCenter + numOptions, leftPad + 1);
-
-            Print.printWhenPossible("v" + Updater.appVersion, SizeHandler.WindowHeight - 1, 0, false);
+            Print.printWhenPossible("  Arena", SizeHandler.HeightCenter + numOptions, leftPad + 20);
 
             Navigation.handlePointerMovementPrint();
 
@@ -350,17 +317,15 @@ namespace Leauge_Auto_Accept
             showCursor = false;
             topPad = SizeHandler.HeightCenter - 4;
             leftPad = SizeHandler.WidthCenter - 25;
-            maxPos = 10;
+            maxPos = 8;
 
             Console.Clear();
 
             // Define options
             string[] optionName = {
-                "Save settings/config",
                 "Preload data",
                 "Instalock pick",
                 "Instalock ban",
-                "Disable update check",
                 "Automatically trade pick order",
                 "Instantly hover pick",
                 "Automatically restart queue",
@@ -369,11 +334,9 @@ namespace Leauge_Auto_Accept
             };
 
             string[] optionValue = {
-                Settings.saveSettings ? "Yes" : "No",
                 Settings.preloadData ? "Yes" : "No",
                 Settings.instaLock ? "Yes" : "No",
                 Settings.instaBan ? "Yes" : "No",
-                Settings.disableUpdateCheck ? "Yes" : "No",
                 Settings.autoPickOrderTrade ? "Yes" : "No",
                 Settings.instantHover ? "Yes" : "No",
                 Settings.autoRestartQueue ? "Yes" : "No",
@@ -400,42 +363,34 @@ namespace Leauge_Auto_Accept
             switch (item)
             {
                 case 0:
-                    Print.printCentered("Save settings for the next time you open the app.", topPad + maxPos + 2);
-                    Print.printCentered("This will create a settings file in the %AppData% folder.");
-                    break;
-                case 1:
                     Print.printCentered("Preload all data the app will need on launch.", topPad + maxPos + 2);
                     Print.printCentered("This includes champions list, summoner spells list and more.");
                     break;
-                case 2:
+                case 1:
                     Print.printCentered("Instanly lock in when it's your turn to pick.", topPad + maxPos + 2);
                     Print.printCentered("This will bypass the lock in delay setting.");
                     break;
-                case 3:
+                case 2:
                     Print.printCentered("Instanly lock in when it's your turn to ban.", topPad + maxPos + 2);
                     Print.printCentered("This will bypass the lock in delay setting.");
                     break;
-                case 4:
-                    Print.printCentered("Disable update check on startup.", topPad + maxPos + 2);
-                    Print.printCentered("");
-                    break;
-                case 5:
+                case 3:
                     Print.printCentered("Automatically trade pick order when someone requests to.", topPad + maxPos + 2);
                     Print.printCentered("");
                     break;
-                case 6:
+                case 4:
                     Print.printCentered("Instantly hover champion as soon as joining champ select.", topPad + maxPos + 2);
                     Print.printCentered("In draft pick, it will hover before you are normally able to.");
                     break;
-                case 7:
+                case 5:
                     Print.printCentered("Automatically restart queue every few minutes.", topPad + maxPos + 2);
                     Print.printCentered("Default is 5 mintues, can be configured in the delays settings.");
                     break;
-                case 8:
+                case 6:
                     Print.printCentered("Automatically cancel the queue after someone dodges the lobby.", topPad + maxPos + 2);
                     Print.printCentered("");
                     break;
-                case 9:
+                case 7:
                     Print.printCentered("Adjust different delays.", topPad + maxPos + 2);
                     Print.printCentered("");
                     break;
@@ -448,15 +403,13 @@ namespace Leauge_Auto_Accept
 
             string outputText = item switch
             {
-                0 => Settings.saveSettings ? " Yes" : ". No",
-                1 => Settings.preloadData ? " Yes" : ". No",
-                2 => Settings.instaLock ? " Yes" : ". No",
-                3 => Settings.instaBan ? " Yes" : ". No",
-                4 => Settings.disableUpdateCheck ? " Yes" : ". No",
-                5 => Settings.autoPickOrderTrade ? " Yes" : ". No",
-                6 => Settings.instantHover ? " Yes" : ". No",
-                7 => Settings.autoRestartQueue ? " Yes" : ". No",
-                8 => Settings.cancelQueueAfterDodge ? " Yes" : ". No",
+                0 => Settings.preloadData ? " Yes" : ". No",
+                1 => Settings.instaLock ? " Yes" : ". No",
+                2 => Settings.instaBan ? " Yes" : ". No",
+                3 => Settings.autoPickOrderTrade ? " Yes" : ". No",
+                4 => Settings.instantHover ? " Yes" : ". No",
+                5 => Settings.autoRestartQueue ? " Yes" : ". No",
+                6 => Settings.cancelQueueAfterDodge ? " Yes" : ". No",
                 _ => ""
             };
             Print.printWhenPossible(outputText, item + topPad, SizeHandler.WidthCenter + 22 - outputText.Length);
@@ -491,14 +444,14 @@ namespace Leauge_Auto_Accept
                 "Chat Messages Delay"
             };
             string[] optionValue = {
-                Settings.pickStartHoverDelay.ToString(),
-                Settings.pickStartlockDelay.ToString(),
-                Settings.pickEndlockDelay.ToString(),
-                Settings.banStartHoverDelay.ToString(),
-                Settings.banStartlockDelay.ToString(),
-                Settings.banEndlockDelay.ToString(),
-                Settings.queueMaxTime.ToString(),
-                Settings.chatMessagesDelay.ToString()
+                formatDelayValue(Settings.pickStartHoverDelay),
+                formatDelayValue(Settings.pickStartlockDelay),
+                formatDelayValue(Settings.pickEndlockDelay),
+                formatDelayValue(Settings.banStartHoverDelay),
+                formatDelayValue(Settings.banStartlockDelay),
+                formatDelayValue(Settings.banEndlockDelay),
+                formatDelayValue(Settings.queueMaxTime),
+                formatDelayValue(Settings.chatMessagesDelay)
             };
 
             // Print options
@@ -514,6 +467,12 @@ namespace Leauge_Auto_Accept
             delayMenuDesc(0);
         }
 
+        private static string formatDelayValue(int milliseconds)
+        {
+            int seconds = Settings.ConvertMillisecondsToSeconds(milliseconds);
+            return seconds + "s";
+        }
+
         public static void delayMenuDesc(int item)
         {
             // settings descrptions
@@ -521,35 +480,35 @@ namespace Leauge_Auto_Accept
             {
                 case 0:
                     Print.printCentered("Delay after which to hover your pick.", topPad + maxPos + 2);
-                    Print.printCentered("Default is 10000.");
+                    Print.printCentered("Default is 10 seconds.");
                     break;
                 case 1:
                     Print.printCentered("Delay after which to lock in your pick, after you are able to.", topPad + maxPos + 2);
-                    Print.printCentered("Default is 999999999.");
+                    Print.printCentered("Default is 1000000 seconds.");
                     break;
                 case 2:
                     Print.printCentered("Time to lock in before your time runs out.", topPad + maxPos + 2);
-                    Print.printCentered("Do not set too low (<300), it will cause you to dodge. Default is 1000.");
+                    Print.printCentered("Do not set too low (less than 1 second), it will cause you to dodge. Default is 1 second.");
                     break;
                 case 3:
                     Print.printCentered("Delay after which to hover your ban.", topPad + maxPos + 2);
-                    Print.printCentered("Default is 1500.");
+                    Print.printCentered("Default is 2 seconds.");
                     break;
                 case 4:
                     Print.printCentered("Delay after which to lock in your pick, after you are able to.", topPad + maxPos + 2);
-                    Print.printCentered("Default is 999999999.");
+                    Print.printCentered("Default is 1000000 seconds.");
                     break;
                 case 5:
                     Print.printCentered("Time to lock in before your time runs out", topPad + maxPos + 2);
-                    Print.printCentered("Default is 1000.");
+                    Print.printCentered("Default is 1 second.");
                     break;
                 case 6:
                     Print.printCentered("How long should the queue be before cancelling and restarting it?", topPad + maxPos + 2);
-                    Print.printCentered("Default is 300000.");
+                    Print.printCentered("Default is 300 seconds.");
                     break;
                 case 7:
                     Print.printCentered("Delay after which the chat messages will be sent", topPad + maxPos + 2);
-                    Print.printCentered("Default is 100.");
+                    Print.printCentered("Default is 0 seconds.");
                     break;
             }
         }
@@ -560,64 +519,17 @@ namespace Leauge_Auto_Accept
 
             string outputText = item switch
             {
-                0 => (" " + Settings.pickStartHoverDelay).PadLeft(10, '.'),
-                1 => (" " + Settings.pickStartlockDelay).PadLeft(10, '.'),
-                2 => (" " + Settings.pickEndlockDelay).PadLeft(10, '.'),
-                3 => (" " + Settings.banStartHoverDelay).PadLeft(10, '.'),
-                4 => (" " + Settings.banStartlockDelay).PadLeft(10, '.'),
-                5 => (" " + Settings.banEndlockDelay).PadLeft(10, '.'),
-                6 => (" " + Settings.queueMaxTime).PadLeft(10, '.'),
-                7 => (" " + Settings.chatMessagesDelay).PadLeft(10, '.'),
+                0 => (" " + formatDelayValue(Settings.pickStartHoverDelay)).PadLeft(10, '.'),
+                1 => (" " + formatDelayValue(Settings.pickStartlockDelay)).PadLeft(10, '.'),
+                2 => (" " + formatDelayValue(Settings.pickEndlockDelay)).PadLeft(10, '.'),
+                3 => (" " + formatDelayValue(Settings.banStartHoverDelay)).PadLeft(10, '.'),
+                4 => (" " + formatDelayValue(Settings.banStartlockDelay)).PadLeft(10, '.'),
+                5 => (" " + formatDelayValue(Settings.banEndlockDelay)).PadLeft(10, '.'),
+                6 => (" " + formatDelayValue(Settings.queueMaxTime)).PadLeft(10, '.'),
+                7 => (" " + formatDelayValue(Settings.chatMessagesDelay)).PadLeft(10, '.'),
                 _ => ""
             };
             Print.printWhenPossible(outputText, item + topPad, SizeHandler.WidthCenter + 22 - outputText.Length);
-        }
-
-        public static void infoMenu()
-        {
-            Print.canMovePos = false;
-            Navigation.currentPos = 0;
-            Navigation.consolePosLast = 0;
-
-            currentWindow = "infoMenu";
-            windowType = "nocursor";
-            showCursor = false;
-
-            Console.Clear();
-
-            Print.printCentered(addDotsInBetween("Made by", "sweetriverfish"), SizeHandler.HeightCenter - 5);
-            Print.printCentered(addDotsInBetween("Version", Updater.appVersion));
-
-            Print.printCentered("Source code:", SizeHandler.HeightCenter -2);
-            Print.printCentered(" github.com/sweetriverfish/LeagueAutoAccept");
-
-            Print.printCentered("Contributors:", SizeHandler.HeightCenter + 1);
-
-            string[] ContributorsList = {
-                "IxPrumxI",
-                "ivelmiskin3",
-                "mrmark1998",
-                "mrcyclo",
-                "considerate-mouth",
-                "DanielBiondi",
-                "ericnewton76"
-            };
-
-            Random rng = new Random();
-            int n = ContributorsList.Length;
-            while (n > 1)
-            {
-                n--;
-                int k = rng.Next(n + 1);
-                string value = ContributorsList[k];
-                ContributorsList[k] = ContributorsList[n];
-                ContributorsList[n] = value;
-            }
-
-            for (int i = 0; i < ContributorsList.Length; i++)
-            {
-                Print.printCentered(ContributorsList[i]);
-            }
         }
 
         public static void exitMenu()

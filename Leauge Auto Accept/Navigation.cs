@@ -435,11 +435,6 @@ namespace Leauge_Auto_Accept
                         positionLeft = UI.leftPad + 19;
                         positionTop = SizeHandler.HeightCenter + UI.numOptions;
                     }
-                    else if (consolePosLast == UI.maxPos - 1) // Info
-                    {
-                        positionLeft = UI.leftPad + 40;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
                 }
                 else if (UI.currentWindow == "exitMenu" && consolePosLast == 1)
                 {
@@ -491,11 +486,6 @@ namespace Leauge_Auto_Accept
                     else if (currentPos == UI.numOptions + 1) // Arena
                     {
                         positionLeft = UI.leftPad + 19;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
-                    else if (currentPos == UI.maxPos - 1) // Info
-                    {
-                        positionLeft = UI.leftPad + 40;
                         positionTop = SizeHandler.HeightCenter + UI.numOptions;
                     }
                 }
@@ -627,52 +617,32 @@ namespace Leauge_Auto_Accept
                     UI.runeSelector();
                     break;
                 case 4:
-                    UI.currentChampPicker = 2;
-                    UI.champSelector();
-                    break;
-                case 5:
-                    UI.currentChampPicker = 2;
-                    UI.runeSelector();
-                    break;
-                case 6:
-                    UI.currentChampPicker = 3;
-                    UI.champSelector();
-                    break;
-                case 7:
-                    UI.currentChampPicker = 3;
-                    UI.runeSelector();
-                    break;
-                case 8:
                     UI.currentChampPicker = 4;
                     UI.champSelector();
                     break;
-                case 9:
+                case 5:
                     UI.currentSpellSlot = 0;
                     UI.spellSelector();
                     break;
-                case 10:
+                case 6:
                     UI.currentSpellSlot = 1;
                     UI.spellSelector();
                     break;
-                case 11:
+                case 7:
                     UI.chatMessagesWindow();
                     break;
-                case 12:
+                case 8:
                     Settings.toggleAutoAcceptSetting();
                     UI.toggleAutoAcceptSettingUI(currentPos);
                     break;
-                case 13:
+                case 9:
                     UI.settingsMenu();
                     break;
-                case 14:
+                case 10:
                     UI.arenaMenu();
-                    break;
-                case 15:
-                    UI.infoMenu();
                     break;
             }
         }
-
         private static void arenaMenuNav()
         {
             switch (currentPos)
