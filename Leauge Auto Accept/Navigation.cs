@@ -1,7 +1,4 @@
-﻿﻿using System;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
+using System;
 using System.Threading;
 
 namespace Leauge_Auto_Accept
@@ -68,10 +65,6 @@ namespace Leauge_Auto_Accept
                     if (UI.currentWindow == "settingsMenu")
                     {
                         UI.settingsMenuDesc(currentPos);
-                    }
-                    else if (UI.currentWindow == "arenaMenu")
-                    {
-                        UI.arenaMenuDesc(currentPos);
                     }
                     else if (UI.currentWindow == "delayMenu")
                     {
@@ -232,7 +225,6 @@ namespace Leauge_Auto_Accept
                     {
                         return false;
                     }
-                    // TODO: improve this somehow
                     UI.currentPage++;
                     currentPos = 0;
                     UI.chatMessagesWindow(UI.currentPage);
@@ -243,7 +235,6 @@ namespace Leauge_Auto_Accept
                     {
                         return false;
                     }
-                    // TODO: improve this somehow
                     UI.currentPage--;
                     currentPos = 0;
                     UI.chatMessagesWindow(UI.currentPage);
@@ -260,7 +251,6 @@ namespace Leauge_Auto_Accept
                     UI.settingsMenu();
                     break;
                 case "mainScreen":
-                    UI.exitMenu();
                     break;
                 case "exitMenu":
                     if (LCU.isLeagueOpen)
@@ -298,13 +288,6 @@ namespace Leauge_Auto_Accept
                 case "mainScreen":
                     mainMenuNav();
                     break;
-                case "arenaMenu":
-                    arenaMenuNav();
-                    if (UI.currentWindow == "arenaMenu")
-                    {
-                        UI.arenaMenuUpdateUI(currentPos);
-                    }
-                    break;
                 case "settingsMenu":
                     Settings.settingsModify(currentPos);
                     if (UI.currentWindow == "settingsMenu")
@@ -336,15 +319,7 @@ namespace Leauge_Auto_Accept
                         {
                             Settings.saveSelectedRune();
                         }
-                        if (UI.previousWindow == "arenaMenu")
-                        {
-                            UI.previousWindow = "";
-                            UI.arenaMenu();
-                        }
-                        else
-                        {
-                            UI.mainScreen();
-                        }
+                        UI.mainScreen();
                     }
                     break;
                 case "chatMessagesWindow":
@@ -384,14 +359,16 @@ namespace Leauge_Auto_Accept
 
         private static void handleInput(char key)
         {
-            if (UI.currentWindow == "champSelector" || UI.currentWindow == "spellSelector"|| UI.currentWindow == "runeSelector")
+            if (UI.currentWindow == "champSelector" || UI.currentWindow == "spellSelector" || UI.currentWindow == "runeSelector")
             {
                 if (currentInput.Length < 100)
                 {
                     currentInput += key;
                     UI.updateCurrentFilter();
                 }
+                return;
             }
+
             if (UI.currentWindow == "chatMessagesEdit")
             {
                 if (currentInput.Length < 200)
@@ -399,14 +376,13 @@ namespace Leauge_Auto_Accept
                     currentInput += key;
                     UI.updateMessageEdit();
                 }
+                return;
             }
-            else if (UI.currentWindow == "delayMenu")
+
+            if (UI.currentWindow == "delayMenu" && Functions.IsNumeric(key))
             {
-                if (Functions.IsNumeric(key))
-                {
-                    Settings.delayModify(currentPos, Int32.Parse(key.ToString()));
-                    UI.delayMenuUpdateUI(currentPos);
-                }
+                Settings.delayModify(currentPos, Int32.Parse(key.ToString()));
+                UI.delayMenuUpdateUI(currentPos);
             }
         }
 
@@ -425,21 +401,8 @@ namespace Leauge_Auto_Accept
                 if (UI.currentWindow == "mainScreen" && consolePosLast >= UI.numOptions)
                 {
                     // Handles the weird main menu navigation
-                    if (consolePosLast == UI.numOptions) // Settings
-                    {
-                        positionLeft = UI.leftPad;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
-                    else if (consolePosLast == UI.numOptions + 1) // Arena
-                    {
-                        positionLeft = UI.leftPad + 19;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
-                    else if (consolePosLast == UI.maxPos - 1) // Info
-                    {
-                        positionLeft = UI.leftPad + 40;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
+                    positionLeft = UI.leftPad;
+                    positionTop = SizeHandler.HeightCenter + UI.numOptions;
                 }
                 else if (UI.currentWindow == "exitMenu" && consolePosLast == 1)
                 {
@@ -483,21 +446,8 @@ namespace Leauge_Auto_Accept
 
                 if (UI.currentWindow == "mainScreen" && currentPos >= UI.numOptions)
                 {
-                    if (currentPos == UI.numOptions) // Settings
-                    {
-                        positionLeft = UI.leftPad;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
-                    else if (currentPos == UI.numOptions + 1) // Arena
-                    {
-                        positionLeft = UI.leftPad + 19;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
-                    else if (currentPos == UI.maxPos - 1) // Info
-                    {
-                        positionLeft = UI.leftPad + 40;
-                        positionTop = SizeHandler.HeightCenter + UI.numOptions;
-                    }
+                    positionLeft = UI.leftPad;
+                    positionTop = SizeHandler.HeightCenter + UI.numOptions;
                 }
                 else if (UI.currentWindow == "exitMenu" && currentPos == 1)
                 {
@@ -627,84 +577,36 @@ namespace Leauge_Auto_Accept
                     UI.runeSelector();
                     break;
                 case 4:
-                    UI.currentChampPicker = 2;
-                    UI.champSelector();
-                    break;
-                case 5:
-                    UI.currentChampPicker = 2;
-                    UI.runeSelector();
-                    break;
-                case 6:
-                    UI.currentChampPicker = 3;
-                    UI.champSelector();
-                    break;
-                case 7:
-                    UI.currentChampPicker = 3;
-                    UI.runeSelector();
-                    break;
-                case 8:
                     UI.currentChampPicker = 4;
                     UI.champSelector();
                     break;
-                case 9:
-                    UI.currentSpellSlot = 0;
-                    UI.spellSelector();
-                    break;
-                case 10:
-                    UI.currentSpellSlot = 1;
-                    UI.spellSelector();
-                    break;
-                case 11:
-                    UI.chatMessagesWindow();
-                    break;
-                case 12:
-                    Settings.toggleAutoAcceptSetting();
-                    UI.toggleAutoAcceptSettingUI(currentPos);
-                    break;
-                case 13:
-                    UI.settingsMenu();
-                    break;
-                case 14:
-                    UI.arenaMenu();
-                    break;
-                case 15:
-                    UI.infoMenu();
-                    break;
-            }
-        }
-
-        private static void arenaMenuNav()
-        {
-            switch (currentPos)
-            {
-                case 0:
-                    Settings.toggleBraverySetting();
-                    return;
-                case 1:
-                    Settings.toggleBanCrowdFavouriteSetting();
-                    return;
-                case 2:
-                    UI.currentChampPicker = 5;
-                    UI.champSelector();
-                    break;
-                case 3:
-                    UI.currentChampPicker = 6;
-                    UI.champSelector();
-                    break;
-                case 4:
-                    UI.currentChampPicker = 7;
-                    UI.champSelector();
-                    break;
                 case 5:
-                    UI.currentChampPicker = 8;
+                    UI.currentChampPicker = 10;
                     UI.champSelector();
                     break;
                 case 6:
-                    UI.currentChampPicker = 9;
-                    UI.champSelector();
+                    UI.currentSpellSlot = 0;
+                    UI.spellSelector();
+                    break;
+                case 7:
+                    UI.currentSpellSlot = 1;
+                    UI.spellSelector();
+                    break;
+                case 8:
+                    UI.chatMessagesWindow();
+                    break;
+                case 9:
+                    Settings.toggleAutoAcceptSetting();
+                    UI.toggleAutoAcceptSettingUI(currentPos);
+                    break;
+                case 10:
+                    Settings.toggleBraverySetting();
+                    UI.toggleBraverySettingUI(currentPos);
+                    break;
+                case 11:
+                    UI.settingsMenu();
                     break;
             }
-            UI.previousWindow = "arenaMenu";
         }
     }
 }
